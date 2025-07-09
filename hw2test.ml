@@ -60,6 +60,15 @@ let%test "take: single-element list" =
 
 (* Problem 6: firsts *)
 let%test "test6" = firsts [(1,2); (3,4)] = [1; 3]
+(* Test the base case with an empty list *)
+let%test "firsts: empty list" =
+  firsts [] = []
+(* Test a list with a single pair *)
+let%test "firsts: single element list" =
+  firsts [("hello", 100)] = ["hello"]
+(* Test a list of pairs with different types *)
+let%test "firsts: string and bool pairs" =
+  firsts [("a", true); ("b", false); ("c", true)] = ["a"; "b"; "c"]
 
 (** don't forget to write a comment for problem 7 **)
 

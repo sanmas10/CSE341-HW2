@@ -92,10 +92,21 @@ let rec firsts xs =
     | (a, _) :: t -> a :: firsts t
 
 (* 7 *)
-(* write your comment here *)
+(*
+These two expressions always evaluate to the same value because both expressions ultimately construct a list of the first elements from exactly the first n pairs of the original list xs.
+
+The expression firsts (take (n, xs)) is faster because it only processes the first n elements of the list, whereas take (n, firsts xs) requires firsts to process the entire list first, which is unnecessary work if n is smaller than the lists total length.
+*)
 
 (* 8 *)
-let rec assoc (k, xs) = None (* TODO *)
+let rec assoc (k, xs) =
+  match xs with
+  | [] -> None
+  | (k1, v1) :: t -> (* Pattern match it to a head pair and a tail list *)
+    if k = k1 then (*  *)
+      Some v1
+    else
+      assoc (k, t)
 
 (* 9 *)
 let dot (j, f) = Some (String "TODO") (* TODO *)
