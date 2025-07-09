@@ -27,15 +27,39 @@ open Json
     [Object [("n", Num 2.); ("b", True)]; 
      Object [("n", Num 1.); ("b", True)]]
 
-(* let%test "test2" = concat_with (";", ["1"; "2"]) = "1;2" *)
+(*Problem 2: concat_with*)
+let%test "test2" = concat_with (";", ["1"; "2"]) = "1;2"
+(* Test with a longer list and a different separator *)
+let%test "test2b" = concat_with (" ", ["OCaml"; "is"; "fun"]) = "OCaml is fun"
+(* Test the first base case: an empty list *)
+let%test "test2c" = concat_with (",", []) = ""
+(* Test the second base case: a single-element list *)
+let%test "test2d" = concat_with (",", ["hello"]) = "hello"
 
-(* let%test "test3" = quote_string "hello" = "\"hello\"" *)
+(*Problem 3: quote_string *)
+let%test "test3" = quote_string "hello" = "\"hello\""
 
-(* let%test "test4" = string_of_json json_obj = "{\"foo\" : 3.14159, \"bar\" : [1, \"world\", null], \"ok\" : true}" *)
+(*Problem 4: string_of_json *)
+let%test "test4" = string_of_json json_obj = "{\"foo\" : 3.14159, \"bar\" : [1, \"world\", null], \"ok\" : true}"
+(* Test an empty object *)
+let%test "string_of_json: empty object" = string_of_json (Object []) = "{}"
+(* Test an empty array *)
+let%test "string_of_json: empty array" = string_of_json (Array []) = "[]"
 
-(* let%test "test5" = take (2, [4; 5; 6; 7]) = [4; 5] *)
+(*Problem 5: string_of_json *)
+let%test "test5" = take (2, [4; 5; 6; 7]) = [4; 5]
+(* Test the base case where n is 0 *)
+let%test "take: n is zero" =
+  take (0, [4; 5; 6; 7]) = []
+(* Test taking all elements from a list *)
+let%test "take: all elements" =
+  take (3, ["a"; "b"; "c"]) = ["a"; "b"; "c"]
+(* Test taking from a single element list *)
+let%test "take: single-element list" =
+  take (1, [99]) = [99]
 
-(* let%test "test6" = firsts [(1,2); (3,4)] = [1; 3] *)
+(* Problem 6: firsts *)
+let%test "test6" = firsts [(1,2); (3,4)] = [1; 3]
 
 (** don't forget to write a comment for problem 7 **)
 
