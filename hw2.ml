@@ -94,7 +94,6 @@ let rec firsts xs =
 (* 7 *)
 (*
 These two expressions always evaluate to the same value because both expressions ultimately construct a list of the first elements from exactly the first n pairs of the original list xs.
-
 The expression firsts (take (n, xs)) is faster because it only processes the first n elements of the list, whereas take (n, firsts xs) requires firsts to process the entire list first, which is unnecessary work if n is smaller than the lists total length.
 *)
 
@@ -103,34 +102,96 @@ let rec assoc (k, xs) =
   match xs with
   | [] -> None
   | (k1, v1) :: t -> (* Pattern match it to a head pair and a tail list *)
-    if k = k1 then (*  *)
+    if k = k1 then (* If keys match, return the value v1 wrapped in Some  *)
       Some v1
     else
       assoc (k, t)
 
 (* 9 *)
-let dot (j, f) = Some (String "TODO") (* TODO *)
+let dot (j, f) =
+  match j with
+  | Object kvs -> assoc (f, kvs)
+  | _ -> None
 
 (* 10 *)
-let rec dots (j, fs) = Some (String "TODO") (* TODO *)
+let rec dots (j, fs) =
+  match fs with
+  | [] -> Some j
+  | h :: t -> (* Access the first field in the path *)
+    match dot (j, h) with
+    | None -> None
+    | Some next_j -> dots (next_j, t)
 
 (* 11 *)
-let one_fields j = ["TODO"] (* TODO *)
+let one_fields j =
+  match j with
+  | Object kvs -> firsts kvs (* Use firsts to extract keys from object *)
+  | _ -> [] (* Non object input yields no fields *)
 
 (* 12 *)
-let no_repeats xs = false (* TODO *)
+(* A list has no repeats if its length is unchanged after removing duplicates. *)
+let no_repeats xs = List.length (dedup xs) = List.length xs
 
 (* 13 *)
-let rec recursive_no_field_repeats j = false (* TODO *)
+let rec recursive_no_field_repeats j =
+  (* Helper to check that the no-repeat property holds for a list of json values. *)
+  let check_list lst =
+    List.for_all recursive_no_field_repeats lst
+  in
+  (* Helper to check that the no-repeat property holds for the values in a list of key-value pairs. *)
+  let check_object_values kvs =
+    let values = List.map (fun (_, v) -> v) kvs in
+    check_list values
+  in
+  match j with
+  | Object kvs -> (no_repeats (one_fields j)) && (check_object_values kvs)
+  | Array js -> check_list js
+  | _ -> true
 
 (* 14 *)
-let count_occurrences xs = [("TODO", 0)] (* TODO *)
+let count_occurrences xs =
+  (* A tail-recursive helper to perform the single-pass count.
+   * acc: the list of (string, int) pairs collected so far.
+   * current_s: the string we are currently counting.
+   * current_n: the count of the current string.
+   * lst: the rest of the list to process.
+   *)
+  let rec helper acc current_s current_n lst =
+    match lst with
+    | [] -> (current_s, current_n) :: acc
+    | h :: t ->
+        if h = current_s then
+          helper acc current_s (current_n + 1) t
+        else
+          helper ((current_s, current_n) :: acc) h 1 t
+  in
+  match xs with
+  | [] -> []
+  | h :: t -> List.rev (helper [] h 1 t)
 
 (* 15 *)
-let rec string_values_for_access_path (fs, js) = ["TODO"] (* TODO *)
+let rec string_values_for_access_path (fs, js) =
+  match js with
+  | [] -> []
+  | j :: tl ->
+    let rest = string_values_for_access_path (fs, tl) in
+    (* Use dots to find the nested value in the current item. *)
+    match dots (j, fs) with
+    | Some (String s) -> s :: rest (* If it's a string, add it to the results. *)
+    | _ -> rest (* Otherwise, ignore the item. *)
 
 (* 16 *)
-let rec filter_access_path_value (fs, v, js) = [Null] (* TODO *)
+let rec filter_access_path_value (fs, v, js) =
+  match js with
+  | [] -> [] (* Base case: return an empty list. *)
+  | h :: t ->
+    (* Recursively filter the rest of the list. *)
+    let rest = filter_access_path_value (fs, v, t) in
+    (* Check if the current item h matches the condition. *)
+    if dots (h, fs) = Some (String v) then
+      h :: rest (* If it matches, keep h. *)
+    else
+      rest (* Otherwise, discard h. *)
 
 (* Types for use in problems 17-20. *)
 type rect = { min_latitude: float; max_latitude: float;
@@ -138,13 +199,43 @@ type rect = { min_latitude: float; max_latitude: float;
 type point = { latitude: float; longitude: float }
 
 (* 17 *)
-let in_rect (r, p) = false (* TODO *)
+let in_rect (r, p) =
+  (* Check if the point's latitude is within the valid range. *)
+  p.latitude >= r.min_latitude && p.latitude <= r.max_latitude &&
+  (* Check if the point's longitude is within the valid range. *)
+  p.longitude >= r.min_longitude && p.longitude <= r.max_longitude
 
 (* 18 *)
-let point_of_json j = Some {latitude = -1.; longitude = -1.} (* TODO *)
+let point_of_json j =
+  (* Use `dot` to look up both latitude and longitude fields. *)
+  match (dot (j, "latitude"), dot (j, "longitude")) with
+  (* If both fields exist and are Nums, extract their float values. *)
+  | (Some (Num lat), Some (Num lon)) ->
+    (* Construct and return the point record, wrapped in Some. *)
+    Some { latitude = lat; longitude = lon }
+  (* In all other cases (missing fields, wrong types, etc.), return None. *)
+  | _ -> None
 
 (* 19 *)
-let rec filter_access_path_in_rect (fs, r, js) = [Null] (* TODO *)
+let rec filter_access_path_in_rect (fs, r, js) =
+  match js with
+  | [] -> [] (* Base case: return an empty list. *)
+  | h :: t ->
+    (* Recursively filter the rest of the list. *)
+    let rest = filter_access_path_in_rect (fs, r, t) in
+    (* Find the nested json value using the access path. *)
+    match dots (h, fs) with
+    | None -> rest (* Path is invalid, so discard h. *)
+    | Some nested_j ->
+      (* Try to convert the nested json into a point. *)
+      match point_of_json nested_j with
+      | None -> rest (* Not a valid point, so discard h. *)
+      | Some p ->
+        (* If it's a valid point, check if it's in the rectangle. *)
+        if in_rect (r, p) then
+          h :: rest (* It is, so keep h. *)
+        else
+          rest (* It's not, so discard h. *)
 
 (* 20 *)
 (* write your comment here *)
