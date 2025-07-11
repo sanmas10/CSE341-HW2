@@ -238,12 +238,16 @@ let rec filter_access_path_in_rect (fs, r, js) =
           rest (* It's not, so discard h. *)
 
 (* 20 *)
-(* write your comment here *)
+(*
+Both functions filter a list of JSON values based on a condition at a specific access path. They could be refactored into a general function that takes a "predicate" function as an argument to check the nested value.
+My annoyance level is a 4. I'm neutral about identifying and working with common patterns.
+*)
 
 (* For this section, we provide the definition of U district and the functions
  * to calculate a histogram. Use these to create the bindings as requested. 
  * But notice our implementation of histogram uses *your* definition of count_occurrences
- *)
+*)
+ 
 (* The definition of the U district for purposes of this assignment :) *)
 let u_district =
   { min_latitude  =  47.648637;
@@ -258,7 +262,8 @@ let u_district =
 (* Creates a histogram for the given list of strings. 
  * Returns a tuple in which the first element is
  * a string, and the second is the number of times that string
- * is found. *)
+ * is found. 
+*)
 let histogram xs = 
   let sorted_xs = List.sort (fun a b -> compare a b) xs in
   let counts = count_occurrences sorted_xs in
@@ -276,9 +281,30 @@ let complete_bus_positions_list =
   | Some (Array xs) -> xs
   | _ -> []
 
-let route_histogram     = [] (* TODO *)
-let top_three_routes    = [] (* TODO *)
-let buses_in_ud         = [] (* TODO *)
-let ud_route_histogram  = [] (* TODO *)
-let top_three_ud_routes = [] (* TODO *)
-let all_fourty_fours    = [] (* TODO *)
+(* 21 *)
+(* Creates a histogram of routes by frequency using the full dataset. *)
+let route_histogram =
+  histogram_for_access_path (["vehicle"; "trip"; "route_num"], complete_bus_positions_list)
+
+(* 22 *)
+(* Takes the top three entries from the histogram and extracts their names. *)
+let top_three_routes = firsts (take (3, route_histogram))
+(* 23 *)
+
+(* Filters the full bus list to include only records within the U District. *)
+let buses_in_ud = 
+  filter_access_path_in_rect (["vehicle"; "position"], u_district, complete_bus_positions_list)
+
+(* 24 *)
+(* Creates a histogram of routes using only the buses in the U District. *)
+let ud_route_histogram =
+  histogram_for_access_path (["vehicle"; "trip"; "route_num"], buses_in_ud)
+
+(* 25 *)
+(* Takes the top three entries from the U District histogram and extracts their names. *)
+let top_three_ud_routes = firsts (take (3, ud_route_histogram))
+
+(* 26 *)
+(* Filters the full bus list for all records where the route number is "44". *)
+let all_fourty_fours =
+  filter_access_path_value (["vehicle"; "trip"; "route_num"], "44", complete_bus_positions_list)

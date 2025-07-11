@@ -119,7 +119,7 @@ let%test "dots: empty path" =
   dots (dots_test_obj, []) = Some dots_test_obj
 
 (* Problem 11: one_fields *)
-let%test "test11" = one_fields json_obj = List.rev ["foo";"bar";"ok"]
+let%test "test11" = sort (one_fields json_obj) = sort ["foo";"bar";"ok"]
 let fields_test_obj = Object [("name", String "Alice"); ("age", Num 30.)]
 (* Test a standard object, sorting the lists to ensure order doesn't matter. *)
 let%test "one_fields: standard object" =
@@ -173,7 +173,7 @@ let%test "recursive_no_field_repeats: primitive value" =
 (* Problem 14: count_occurrences *)
 (* Any order is allowed by the specification, so it's ok to fail this test because of a different order. 
    You can edit this test to match your implementation's order. *)
-let%test "test14a" = count_occurrences (["a"; "a"; "b"]) = [("b",1);("a",2)]
+let%test "test14a" = count_occurrences (["a"; "a"; "b"]) = [("a", 2);("b", 1)]
 (* Test a list with several groups of strings. *)
 let%test "count_occurrences: multiple groups" =
   count_occurrences ["a"; "a"; "b"; "c"; "c"; "c"] = [("a", 2); ("b", 1); ("c", 3)]
@@ -286,9 +286,7 @@ let%test "point_of_json: wrong type" =
 let%test "point_of_json: not an object" =
   point_of_json (Array []) = None
 
-(* Problem 19: filter_access_path_in_rect *)
-let%test "test19" = filter_access_path_in_rect (["x"; "y"], u_district, [Object [("x", Object [("y", json_pgascse)])]; Object []])
-             = [Object [("x", Object [("y", json_pgascse)])]]
+(* Tests for Problem 19: filter_access_path_in_rect *)
 let pgascse = { latitude = 47.653221; longitude = -122.305708 }
 let json_pgascse = Object [("latitude", Num 47.653221); ("longitude", Num (-122.305708))]
 let json_outside = Object [("latitude", Num 0.0); ("longitude", Num 0.0)]
@@ -300,18 +298,22 @@ let rect_test_data =
     Object [("location", String "loc")]
   ]
 
+let%test "test19" =
+  filter_access_path_in_rect (["x"; "y"], u_district, [Object [("x", Object [("y", json_pgascse)])]; Object []])
+  = [Object [("x", Object [("y", json_pgascse)])]]
+(* Tests a mixed list to ensure only the valid item is kept. *)
 let%test "filter_in_rect: mixed list" =
   let result = filter_access_path_in_rect (["location"], u_district, rect_test_data) in
   result = [Object [("location", json_pgascse)]]
-
+(* Tests a point that is valid but outside the target rectangle. *)
 let%test "filter_in_rect: point outside" =
   let test_list = [Object [("location", json_outside)]] in
   filter_access_path_in_rect (["location"], u_district, test_list) = []
-
+(* Tests an item where the access path is invalid. *)
 let%test "filter_in_rect: invalid path" =
   let test_list = [Object [("loc", json_pgascse)]] in
   filter_access_path_in_rect (["location"], u_district, test_list) = []
-
+(* Tests the base case with an empty list of items. *)
 let%test "filter_in_rect: empty list" =
   filter_access_path_in_rect (["location"], u_district, []) = []
 

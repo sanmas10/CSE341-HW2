@@ -1,0 +1,133 @@
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    overflow: auto;
+    text-align: center;
+    color: #702f06;
+    background-image: url('dog-jozef-feher.jpg');
+    background-color: #6e3c0f;
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: 'Anton', sans-serif;
+    letter-spacing: 0.075em;
+}
+
+img {
+    box-sizing: border-box;
+    max-width: 90%;
+}
+
+h1 {
+    margin: 10px auto;
+    min-width: 280px;
+    height: 150px;
+    line-height: 150px;
+    font-size: 2.7rem;
+    background-image: url('bone.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+}
+
+h2 a {
+    color: white;
+    text-decoration: none;
+    font-weight: normal;
+}
+
+main {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 20px;
+    min-height: 100%;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+section {
+    margin: 0 auto;
+    max-width: 1100px;
+    text-align: center;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+section > div {
+    margin: 20px auto;
+}
+
+#fetch-btn {
+    display: block;
+    margin: auto;
+    width: 200px;
+    height: 200px;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #20600f;
+    line-height: 1;
+    text-transform: uppercase;
+    border: 0;
+    border-radius: 50%;
+    box-shadow: 0 0 20px #000;
+    background-color: #e3f075;
+    cursor: pointer;
+}
+
+#fetch-btn:hover {
+    background-color: #eff8a7;
+}
+
+#fetch-btn:active {
+    background-color: #e5f71e;
+}
+
+label {
+    margin: 30px 0 10px 0;
+    font-size: 1.6rem;
+    display: block;
+    color: white;
+    font-weight: normal;
+    letter-spacing: 0.075em;
+}
+
+select {
+    margin-bottom: 40px;
+    border: 0;
+    border-radius: 5px;
+    padding: 10px 20px;
+    background-color: #20600f;
+    color: #fff;
+    font-size: 1.1rem;
+    font-family: 'Anton', sans-serif;
+}
+
+#dog-pic {
+    border: solid 10px #702f06;
+    border-radius: 10px;
+}
+
+@media  (min-width: 980px) {
+    section {
+    flex-direction: row;
+    justify-content: space-between;
+    }
+
+    div.inputs {
+        width: 30%;
+    }
+    
+    div.photo {
+        width: 70%;
+        max-width: 700px;
+    }
+    
+}
